@@ -3,17 +3,16 @@ const Parser = require('rss-parser');
 const parser = new Parser();
 
 const feeds = [
-"https://www.archivistes.org/spip.php?page=backend",
-"https://leblog-ffg.over-blog.org/rss",
-"https://www.filae.com/ressources/blog/feed",
+"https://www.filae.com/ressources/blog/",
 "http://www.francegenweb.org/blog/index.php?feed/rss2",
-"https://www.geneatique.com/blog/feed",
+"https://www.geneatique.com/blog/",
+"https://www.genealogiepratique.fr/actualite-genealogique/",  
 "https://home.heredis.com/feed",
 "https://blog.myheritage.fr/feed/",
 "https://www.genefede.eu/feed",
 "https://geneafinder.com/rss/rss.xml",
 "https://www.genealogiepratique.fr/feed",
-"http://genealogie-magazine.over-blog.com/rss",
+"https://genealogie-magazine.over-blog.com/rss",
 "https://www.geneanet.org/blog/feed",
 "https://geneatech.fr/feed",
 "https://www.histoire-genealogie.com/spip.php?page=backend",
