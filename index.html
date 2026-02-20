@@ -4,18 +4,43 @@
 <meta charset="UTF-8">
 <title>Revue d'actualités</title>
 <style>
-body { font-family: 'Segoe UI', sans-serif; background:#f5f7fa; margin:0; padding:20px;}
-.feed-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:20px; }
+body { 
+  font-family: 'Segoe UI', sans-serif; 
+  background:#f5f7fa; 
+  margin:0; 
+  padding:20px;
+}
+.feed-grid { 
+  display:grid; 
+  grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); 
+  gap:20px; 
+}
 .card {
   background:white;
   padding:15px;
   border-radius:12px;
   box-shadow:0 4px 12px rgba(0,0,0,0.08);
+  transition: transform 0.2s ease;
 }
-.card h3 { font-size:1rem; margin:10px 0; }
-.card a { text-decoration:none; color:#1a1a1a; }
-.meta { font-size:0.8em; color:#666; }
-.pagination { text-align:center; margin-top:30px; }
+.card:hover {
+  transform: translateY(-4px);
+}
+.card h3 { 
+  font-size:1rem; 
+  margin:10px 0; 
+}
+.card a { 
+  text-decoration:none; 
+  color:#1a1a1a; 
+}
+.meta { 
+  font-size:0.8em; 
+  color:#666; 
+}
+.pagination { 
+  text-align:center; 
+  margin-top:30px; 
+}
 .pagination button {
   margin:5px;
   padding:8px 12px;
@@ -37,44 +62,85 @@ body { font-family: 'Segoe UI', sans-serif; background:#f5f7fa; margin:0; paddin
 <div id="pagination" class="pagination"></div>
 
 <script>
-let allItems=[];
-let currentPage=1;
-const perPage=12;
+let allItems = [];
+let currentPage = 1;
+const perPage = 12;
 
 fetch('feed.json')
-  .then(res=>res.json())
-  .then(data=>{
-    allItems=data;
+  .then(res => res.json())
+  .then(data => {
+    allItems = data;
     displayPage(1);
     setupPagination();
+  })
+  .catch(err => {
+    document.getElementById("content").innerHTML = "Erreur de chargement du flux.";
+    console.error(err);
   });
 
-function displayPage(page){
-  currentPage=page;
-  const start=(page-1)*perPage;
-  const end=start+perPage;
-  const items=allItems.slice(start,end);
+function getSiteName(item) {
+  // 1️⃣ Si feedName existe dans le JSON
+  if (item.feedName && item.feedName !== "undefined") {
+    return item.feedName;
+  }
 
-  let html='<div class="feed-grid">';
-  items.forEach(item=>{
-    html+=`
-    <div class="card">
-      <div class="meta">${item.feedName}</div>
-      <h3><a href="${item.link}" target="_blank">${item.title}</a></h3>
-      <div class="meta">${new Date(item.pubDate).toLocaleDateString()}</div>
-    </div>`;
-  });
-  html+='</div>';
-  document.getElementById("content").innerHTML=html;
+  // 2️⃣ Sinon on extrait le nom de domaine depuis l'URL
+  try {
+    const url = new URL(item.link);
+    let hostname = url.hostname.replace("www.", "");
+    return hostname;
+  } catch (e) {
+    return "Source inconnue";
+  }
 }
 
-function setupPagination(){
-  const total=Math.ceil(allItems.length/perPage);
-  let html="";
-  for(let i=1;i<=total;i++){
-    html+=`<button onclick="displayPage(${i})">${i}</button>`;
+function displayPage(page) {
+  currentPage = page;
+  const start = (page - 1) * perPage;
+  const end = start + perPage;
+  const items = allItems.slice(start, end);
+
+  let html = '<div class="feed-grid">';
+  
+  items.forEach(item => {
+    const siteName = getSiteName(item);
+
+    html += `
+    <div class="card">
+      <div class="meta">🔗 ${siteName}</div>
+      <h3><a href="${item.link}" target="_blank">${item.title}</a></h3>
+      <div class="meta">
+        ${item.pubDate ? new Date(item.pubDate).toLocaleDateString() : ""}
+      </div>
+    </div>`;
+  });
+
+  html += '</div>';
+  document.getElementById("content").innerHTML = html;
+
+  updateActiveButton();
+}
+
+function setupPagination() {
+  const total = Math.ceil(allItems.length / perPage);
+  let html = "";
+
+  for (let i = 1; i <= total; i++) {
+    html += `<button id="btn${i}" onclick="displayPage(${i})">${i}</button>`;
   }
-  document.getElementById("pagination").innerHTML=html;
+
+  document.getElementById("pagination").innerHTML = html;
+  updateActiveButton();
+}
+
+function updateActiveButton() {
+  const buttons = document.querySelectorAll(".pagination button");
+  buttons.forEach(btn => btn.classList.remove("active"));
+
+  const activeBtn = document.getElementById("btn" + currentPage);
+  if (activeBtn) {
+    activeBtn.classList.add("active");
+  }
 }
 </script>
 
