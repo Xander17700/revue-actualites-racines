@@ -3,10 +3,9 @@ const Parser = require('rss-parser');
 const parser = new Parser();
 
 const feeds = [
-"https://www.filae.com/ressources/blog/",
-"http://www.francegenweb.org/blog/index.php?feed/rss2",
-"https://www.geneatique.com/blog/",
-"https://www.genealogiepratique.fr/actualite-genealogique/",  
+"https://www.filae.com/ressources/blog/feed",
+"http://www.francegenweb.org/blog/index.php?feed=rss2",
+"https://www.geneatique.com/blog/feed",
 "https://home.heredis.com/feed",
 "https://blog.myheritage.fr/feed/",
 "https://www.genefede.eu/feed",
