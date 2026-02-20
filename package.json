@@ -1,0 +1,10 @@
+{
+  "name": "revue-actualites",
+  "version": "1.0.0",
+  "description": "Agrégateur RSS Racines Partagées",
+  "main": "generate.js",
+  "dependencies": {
+    "rss-parser": "^3.12.0",
+    "node-fetch": "^2.6.7"
+  }
+}
