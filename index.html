@@ -59,7 +59,7 @@ function displayPage(page){
   items.forEach(item=>{
     html+=`
     <div class="card">
-      <div class="meta">${item.source}</div>
+      <div class="meta">${item.feedName}</div>
       <h3><a href="${item.link}" target="_blank">${item.title}</a></h3>
       <div class="meta">${new Date(item.pubDate).toLocaleDateString()}</div>
     </div>`;
