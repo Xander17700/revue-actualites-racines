@@ -8,8 +8,6 @@ const parser = new Parser({
 });
 
 const feeds = [
-  "https://www.filae.com/ressources/blog/feed",
-  "http://www.francegenweb.org/blog/index.php?feed=rss2",
   "https://www.geneatique.com/blog/feed",
   "https://home.heredis.com/feed",
   "https://blog.myheritage.fr/feed/",
