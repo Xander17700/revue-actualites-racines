@@ -1,13 +1,14 @@
-const DATE_MIN = new Date("2025-01-22");
-
 const Parser = require('rss-parser');
 const fs = require('fs');
 
 const parser = new Parser({
   headers: {
-    'User-Agent': 'Mozilla/5.0'
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
   }
 });
+
+// 📅 Date minimale : 22 janvier 2025 inclus (UTC sécurisé)
+const DATE_MIN = new Date(Date.UTC(2025, 0, 22, 0, 0, 0));
 
 const feeds = [
   { name: "Geneatique", url: "https://www.geneatique.com/blog/feed" },
@@ -29,20 +30,26 @@ const feeds = [
 
   for (let feed of feeds) {
     try {
+      console.log("Lecture :", feed.url);
+
       const data = await parser.parseURL(feed.url);
 
-const items = data.items
-  .map(item => ({
-    title: item.title,
-    link: item.link,
-    pubDate: item.pubDate || item.isoDate || "",
-    source: feed.name,
-    description: item.contentSnippet || ""
-  }))
-  .filter(item => {
-    const date = new Date(item.pubDate);
-    return date >= DATE_MIN;
-  });
+      const items = data.items
+        .map(item => ({
+          title: item.title || "",
+          link: item.link || "",
+          pubDate: item.pubDate || item.isoDate || "",
+          source: feed.name,
+          description: item.contentSnippet || ""
+        }))
+        .filter(item => {
+          if (!item.pubDate) return false;
+
+          const date = new Date(item.pubDate);
+          if (isNaN(date)) return false;
+
+          return date >= DATE_MIN;
+        });
 
       allItems = allItems.concat(items);
 
@@ -51,8 +58,13 @@ const items = data.items
     }
   }
 
+  // 🔽 Tri du plus récent au plus ancien
   allItems.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+
+  // 🔢 Limite à 80 articles
   allItems = allItems.slice(0, 80);
 
   fs.writeFileSync('feed.json', JSON.stringify(allItems, null, 2));
+
+  console.log("Total articles retenus :", allItems.length);
 })();
