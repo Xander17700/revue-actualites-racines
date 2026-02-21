@@ -14,15 +14,15 @@ const feeds = [
   { name: "Geneatique", url: "https://www.geneatique.com/blog/feed" },
   { name: "Heredis", url: "https://home.heredis.com/feed" },
   { name: "MyHeritage", url: "https://blog.myheritage.fr/feed/" },
-  { name: "Genefede", url: "https://www.genefede.eu/feed" },
-  { name: "Genealogie Pratique", url: "https://www.genealogiepratique.fr/feed" },
-  { name: "Genealogie Magazine", url: "https://genealogie-magazine.over-blog.com/rss" },
-  { name: "Geneanet Blog", url: "https://www.geneanet.org/blog/feed" },
+  { name: "Fédération Française de Généalogie", url: "https://www.genefede.eu/feed" },
+  { name: "Généalogie Pratique", url: "https://www.genealogiepratique.fr/feed" },
+  { name: "Généalogie Magazine", url: "https://genealogie-magazine.over-blog.com/rss" },
+  { name: "Geneanet - Le Blog", url: "https://www.geneanet.org/blog/feed" },
   { name: "Geneatech", url: "https://geneatech.fr/feed" },
   { name: "Histoire & Généalogie", url: "https://www.histoire-genealogie.com/spip.php?page=backend" },
-  { name: "RF Généalogie", url: "https://www.rfgenealogie.com/rss.xml" },
-  { name: "Quotidien Généalogie", url: "https://www.quotidien-genealogie.fr/feed" },
-  { name: "PIAF Archives", url: "https://www.piaf-archives.org/taxonomy/term/6/feed" }
+  { name: "La Revue Française de Généalogie", url: "https://www.rfgenealogie.com/rss.xml" },
+  { name: "Le Quotidien de la Généalogie", url: "https://www.quotidien-genealogie.fr/feed" },
+  { name: "Portail international archivistique francophone (PIAF)", url: "https://www.piaf-archives.org/taxonomy/term/6/feed" }
 ];
 
 (async () => {
