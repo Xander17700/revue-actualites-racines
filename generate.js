@@ -9,7 +9,7 @@ const parser = new Parser({
 
 // 📅 Date minimale : 22 janvier 2025 inclus (UTC sécurisé)
 const DATE_MIN = new Date(Date.UTC(2025, 0, 22, 0, 0, 0));
-const NOW = new Date();
+const date = new Date(item.isoDate || item.pubDate);
 
 const feeds = [
   { name: "Geneatique", url: "https://www.geneatique.com/blog/feed" },
