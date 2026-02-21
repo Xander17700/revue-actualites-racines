@@ -34,10 +34,13 @@ const feeds = [
         link: item.link,
         pubDate: item.pubDate || item.isoDate || "",
         source: feed.name,
-        image: item.enclosure?.url ||
-               item["media:content"]?.url ||
-               (item.content?.match(/<img.*?src="(.*?)"/)?.[1]) ||
-               null,
+        image:
+  item.enclosure?.url ||
+  item["media:content"]?.url ||
+  item["media:thumbnail"]?.url ||
+  item["media:group"]?.["media:content"]?.[0]?.url ||
+  (item.content && item.content.match(/<img.*?src="(.*?)"/)?.[1]) ||
+  null,
         description: item.contentSnippet || ""
       }));
 
