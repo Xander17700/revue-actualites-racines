@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Le fil généalogique</title>
+<title>Revue d'actualités – Généalogie & Archives</title>
 
 <style>
 body {
@@ -33,45 +33,43 @@ input, select {
 }
 
 .container {
-  max-width: 1100px;
+  max-width: 1000px;
   margin: auto;
   padding: 20px;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 20px;
 }
 
 .card {
   background: white;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  border-radius: 10px;
+  padding: 18px;
+  margin-bottom: 15px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.07);
   transition: 0.2s;
 }
 
 .card:hover {
-  transform: translateY(-3px);
-}
-
-.card img {
-  width: 100%;
-  height: 180px;
-  object-fit: cover;
-}
-
-.card-content {
-  padding: 15px;
+  transform: translateY(-2px);
 }
 
 .card h3 {
-  margin: 0 0 10px;
-  font-size: 16px;
+  margin: 0 0 8px;
+  font-size: 17px;
+}
+
+.card a {
+  text-decoration: none;
+  color: #0f172a;
 }
 
 .meta {
   font-size: 12px;
   color: #64748b;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
+}
+
+.desc {
+  font-size: 14px;
+  color: #334155;
 }
 
 .pagination {
@@ -80,7 +78,7 @@ input, select {
 }
 
 button {
-  padding: 8px 12px;
+  padding: 8px 14px;
   margin: 5px;
   border-radius: 6px;
   border: none;
@@ -94,7 +92,7 @@ button {
 <body>
 
 <header>
-  <h1>Revue d'actualités – Généalogie & Archives</h1>
+  <h1>Le fil généalogique</h1>
 </header>
 
 <div class="controls">
@@ -116,7 +114,7 @@ button {
 let allData = [];
 let filteredData = [];
 let currentPage = 1;
-const perPage = 12;
+const perPage = 10;
 
 fetch('feed.json')
 .then(res => res.json())
@@ -167,11 +165,9 @@ function render() {
   pageItems.forEach(item => {
     container.innerHTML += `
       <div class="card">
-        ${item.image ? `<img src="${item.image}">` : ""}
-        <div class="card-content">
-          <h3><a href="${item.link}" target="_blank">${item.title}</a></h3>
-          <div class="meta">${item.source} – ${new Date(item.pubDate).toLocaleDateString()}</div>
-        </div>
+        <h3><a href="${item.link}" target="_blank">${item.title}</a></h3>
+        <div class="meta">${item.source} – ${new Date(item.pubDate).toLocaleDateString()}</div>
+        <div class="desc">${item.description}</div>
       </div>
     `;
   });
