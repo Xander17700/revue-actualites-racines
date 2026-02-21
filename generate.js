@@ -12,7 +12,6 @@ const feeds = [
   "https://home.heredis.com/feed",
   "https://blog.myheritage.fr/feed/",
   "https://www.genefede.eu/feed",
-  "https://geneafinder.com/rss/rss.xml",
   "https://www.genealogiepratique.fr/feed",
   "https://genealogie-magazine.over-blog.com/rss",
   "https://www.geneanet.org/blog/feed",
