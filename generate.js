@@ -9,7 +9,6 @@ const parser = new Parser({
 
 // 📅 Date minimale : 22 janvier 2025 inclus (UTC sécurisé)
 const DATE_MIN = new Date(Date.UTC(2025, 0, 22, 0, 0, 0));
-const date = new Date(item.isoDate || item.pubDate);
 
 const feeds = [
   { name: "Geneatique", url: "https://www.geneatique.com/blog/feed" },
@@ -27,6 +26,8 @@ const feeds = [
   { name: "Le Quotidien de la Généalogie", url: "https://www.quotidien-genealogie.fr/feed" },
   { name: "Portail international archivistique francophone (PIAF)", url: "https://www.piaf-archives.org/taxonomy/term/6/feed" }
 ];
+
+const date = new Date(item.isoDate || item.pubDate);
 
 (async () => {
   let allItems = [];
