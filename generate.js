@@ -1,3 +1,5 @@
+const DATE_MIN = new Date("2025-01-22");
+
 const Parser = require('rss-parser');
 const fs = require('fs');
 
@@ -29,13 +31,18 @@ const feeds = [
     try {
       const data = await parser.parseURL(feed.url);
 
-      const items = data.items.map(item => ({
-        title: item.title,
-        link: item.link,
-        pubDate: item.pubDate || item.isoDate || "",
-        source: feed.name,
-        description: item.contentSnippet || ""
-      }));
+const items = data.items
+  .map(item => ({
+    title: item.title,
+    link: item.link,
+    pubDate: item.pubDate || item.isoDate || "",
+    source: feed.name,
+    description: item.contentSnippet || ""
+  }))
+  .filter(item => {
+    const date = new Date(item.pubDate);
+    return date >= DATE_MIN;
+  });
 
       allItems = allItems.concat(items);
 
