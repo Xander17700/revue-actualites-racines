@@ -14,6 +14,7 @@ const feeds = [
   { name: "Geneatique", url: "https://www.geneatique.com/blog/feed" },
   { name: "Heredis", url: "https://home.heredis.com/feed" },
   { name: "MyHeritage", url: "https://blog.myheritage.fr/feed/" },
+  { name: "Geneafinder", url: "https://geneafinder.com/rss/rss.xml" },
   { name: "Fédération Française de Généalogie", url: "https://www.genefede.eu/feed" },
   { name: "Généalogie Pratique", url: "https://www.genealogiepratique.fr/feed" },
   { name: "Généalogie Magazine", url: "https://genealogie-magazine.over-blog.com/rss" },
