@@ -18,7 +18,7 @@ const feeds = [
   { name: "Cercle Généalogique de Saintonge", url: "https://www.cgsaintonge.fr/feed/" },
   { name: "Généa79 – Cercle généalogique des Deux-Sèvres", url: "https://genea79.wordpress.com/feed/" },
   { name: "Généalogie Pratique - Articles récents", url: "https://www.genealogiepratique.fr/feed" },
-  { name: "Généalogie Pratique - Catégorie Actualité généralogique", url: "https://www.genealogiepratique.fr/actualite-genealogique/feed/" },
+  { name: "Généalogie Pratique - Catégorie Actualité généalogique", url: "https://www.genealogiepratique.fr/actualite-genealogique/feed/" },
   { name: "Généalogie Pratique - Catégorie Tutoriels généalogiques", url: "https://www.genealogiepratique.fr/tutoriels-genealogiques-video/feed/" },
   { name: "Généalogie Pratique - Catégorie Outils & logiciels", url: "https://www.genealogiepratique.fr/outils-logiciels/feed/" },
   { name: "Généalogie Pratique - Catégorie Méthodes & Pratiques", url: "https://www.genealogiepratique.fr/methodes-pratiques/feed/" },
