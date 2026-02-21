@@ -12,6 +12,7 @@ const feeds = [
   { name: "Heredis", url: "https://home.heredis.com/feed" },
   { name: "MyHeritage", url: "https://blog.myheritage.fr/feed/" },
   { name: "Genefede", url: "https://www.genefede.eu/feed" },
+  { name: "Geneafinder", url: "https://geneafinder.com/rss/rss.xml" },
   { name: "Genealogie Pratique", url: "https://www.genealogiepratique.fr/feed" },
   { name: "Genealogie Magazine", url: "https://genealogie-magazine.over-blog.com/rss" },
   { name: "Geneanet Blog", url: "https://www.geneanet.org/blog/feed" },
@@ -34,13 +35,6 @@ const feeds = [
         link: item.link,
         pubDate: item.pubDate || item.isoDate || "",
         source: feed.name,
-        image:
-  item.enclosure?.url ||
-  item["media:content"]?.url ||
-  item["media:thumbnail"]?.url ||
-  item["media:group"]?.["media:content"]?.[0]?.url ||
-  (item.content && item.content.match(/<img.*?src="(.*?)"/)?.[1]) ||
-  null,
         description: item.contentSnippet || ""
       }));
 
