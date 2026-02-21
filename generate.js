@@ -19,6 +19,7 @@ const feeds = [
   { name: "Généalogie Pratique", url: "https://www.genealogiepratique.fr/feed" },
   { name: "Généalogie Magazine", url: "https://genealogie-magazine.over-blog.com/rss" },
   { name: "Geneanet - Le Blog", url: "https://www.geneanet.org/blog/feed" },
+  { name: "Filae - Le Blog", url: "https://www.filae.com/ressources/blog/feed/" }
   { name: "Geneatech", url: "https://geneatech.fr/feed" },
   { name: "Histoire & Généalogie", url: "https://www.histoire-genealogie.com/spip.php?page=backend" },
   { name: "La Revue Française de Généalogie", url: "https://www.rfgenealogie.com/rss.xml" },
