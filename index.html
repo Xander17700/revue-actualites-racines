@@ -1,147 +1,201 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Revue d'actualités</title>
+<title>Le fil généalogique</title>
+
 <style>
-body { 
-  font-family: 'Segoe UI', sans-serif; 
-  background:#f5f7fa; 
-  margin:0; 
-  padding:20px;
+body {
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  margin: 0;
+  background: #f4f6f9;
 }
-.feed-grid { 
-  display:grid; 
-  grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); 
-  gap:20px; 
+
+header {
+  background: #1e293b;
+  color: white;
+  padding: 20px;
+  text-align: center;
 }
+
+.controls {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  padding: 15px;
+  flex-wrap: wrap;
+}
+
+input, select {
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.container {
+  max-width: 1100px;
+  margin: auto;
+  padding: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+
 .card {
-  background:white;
-  padding:15px;
-  border-radius:12px;
-  box-shadow:0 4px 12px rgba(0,0,0,0.08);
-  transition: transform 0.2s ease;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  transition: 0.2s;
 }
+
 .card:hover {
-  transform: translateY(-4px);
+  transform: translateY(-3px);
 }
-.card h3 { 
-  font-size:1rem; 
-  margin:10px 0; 
+
+.card img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
 }
-.card a { 
-  text-decoration:none; 
-  color:#1a1a1a; 
+
+.card-content {
+  padding: 15px;
 }
-.meta { 
-  font-size:0.8em; 
-  color:#666; 
+
+.card h3 {
+  margin: 0 0 10px;
+  font-size: 16px;
 }
-.pagination { 
-  text-align:center; 
-  margin-top:30px; 
+
+.meta {
+  font-size: 12px;
+  color: #64748b;
+  margin-bottom: 10px;
 }
-.pagination button {
-  margin:5px;
-  padding:8px 12px;
-  border:none;
-  border-radius:6px;
-  background:#e0e6ed;
-  cursor:pointer;
+
+.pagination {
+  text-align: center;
+  padding: 20px;
 }
-.pagination button.active {
-  background:#2d3748;
-  color:white;
+
+button {
+  padding: 8px 12px;
+  margin: 5px;
+  border-radius: 6px;
+  border: none;
+  background: #1e293b;
+  color: white;
+  cursor: pointer;
 }
 </style>
 </head>
+
 <body>
 
-<h2>📰 Le fil généalogique</h2>
-<div id="content">Chargement…</div>
-<div id="pagination" class="pagination"></div>
+<header>
+  <h1>Revue d'actualités – Généalogie & Archives</h1>
+</header>
+
+<div class="controls">
+  <input type="text" id="search" placeholder="Rechercher...">
+  <select id="sourceFilter">
+    <option value="">Toutes les sources</option>
+  </select>
+</div>
+
+<div class="container" id="news"></div>
+
+<div class="pagination">
+  <button onclick="prevPage()">Précédent</button>
+  <span id="pageInfo"></span>
+  <button onclick="nextPage()">Suivant</button>
+</div>
 
 <script>
-let allItems = [];
+let allData = [];
+let filteredData = [];
 let currentPage = 1;
-const perPage = 14;
+const perPage = 12;
 
 fetch('feed.json')
-  .then(res => res.json())
-  .then(data => {
-    allItems = data;
-    displayPage(1);
-    setupPagination();
-  })
-  .catch(err => {
-    document.getElementById("content").innerHTML = "Erreur de chargement du flux.";
-    console.error(err);
+.then(res => res.json())
+.then(data => {
+  allData = data;
+  populateSources();
+  applyFilters();
+});
+
+function populateSources() {
+  const select = document.getElementById("sourceFilter");
+  const sources = [...new Set(allData.map(item => item.source))];
+
+  sources.forEach(src => {
+    const option = document.createElement("option");
+    option.value = src;
+    option.textContent = src;
+    select.appendChild(option);
   });
-
-function getSiteName(item) {
-  // 1️⃣ Si feedName existe dans le JSON
-  if (item.feedName && item.feedName !== "undefined") {
-    return item.feedName;
-  }
-
-  // 2️⃣ Sinon on extrait le nom de domaine depuis l'URL
-  try {
-    const url = new URL(item.link);
-    let hostname = url.hostname.replace("www.", "");
-    return hostname;
-  } catch (e) {
-    return "Source inconnue";
-  }
 }
 
-function displayPage(page) {
-  currentPage = page;
-  const start = (page - 1) * perPage;
-  const end = start + perPage;
-  const items = allItems.slice(start, end);
+function applyFilters() {
+  const searchTerm = document.getElementById("search").value.toLowerCase();
+  const selectedSource = document.getElementById("sourceFilter").value;
 
-  let html = '<div class="feed-grid">';
-  
-  items.forEach(item => {
-    const siteName = getSiteName(item);
+  filteredData = allData.filter(item => {
+    const matchSearch =
+      item.title.toLowerCase().includes(searchTerm) ||
+      item.description.toLowerCase().includes(searchTerm);
 
-    html += `
-    <div class="card">
-      <div class="meta">🔗 ${siteName}</div>
-      <h3><a href="${item.link}" target="_blank">${item.title}</a></h3>
-      <div class="meta">
-        ${item.pubDate ? new Date(item.pubDate).toLocaleDateString() : ""}
+    const matchSource =
+      selectedSource === "" || item.source === selectedSource;
+
+    return matchSearch && matchSource;
+  });
+
+  currentPage = 1;
+  render();
+}
+
+function render() {
+  const container = document.getElementById("news");
+  container.innerHTML = "";
+
+  const start = (currentPage - 1) * perPage;
+  const pageItems = filteredData.slice(start, start + perPage);
+
+  pageItems.forEach(item => {
+    container.innerHTML += `
+      <div class="card">
+        ${item.image ? `<img src="${item.image}">` : ""}
+        <div class="card-content">
+          <h3><a href="${item.link}" target="_blank">${item.title}</a></h3>
+          <div class="meta">${item.source} – ${new Date(item.pubDate).toLocaleDateString()}</div>
+        </div>
       </div>
-    </div>`;
+    `;
   });
 
-  html += '</div>';
-  document.getElementById("content").innerHTML = html;
-
-  updateActiveButton();
+  document.getElementById("pageInfo").textContent =
+    "Page " + currentPage + " / " + Math.ceil(filteredData.length / perPage);
 }
 
-function setupPagination() {
-  const total = Math.ceil(allItems.length / perPage);
-  let html = "";
-
-  for (let i = 1; i <= total; i++) {
-    html += `<button id="btn${i}" onclick="displayPage(${i})">${i}</button>`;
-  }
-
-  document.getElementById("pagination").innerHTML = html;
-  updateActiveButton();
-}
-
-function updateActiveButton() {
-  const buttons = document.querySelectorAll(".pagination button");
-  buttons.forEach(btn => btn.classList.remove("active"));
-
-  const activeBtn = document.getElementById("btn" + currentPage);
-  if (activeBtn) {
-    activeBtn.classList.add("active");
+function nextPage() {
+  if (currentPage < Math.ceil(filteredData.length / perPage)) {
+    currentPage++;
+    render();
   }
 }
+
+function prevPage() {
+  if (currentPage > 1) {
+    currentPage--;
+    render();
+  }
+}
+
+document.getElementById("search").addEventListener("input", applyFilters);
+document.getElementById("sourceFilter").addEventListener("change", applyFilters);
 </script>
 
 </body>
