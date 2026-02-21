@@ -15,13 +15,13 @@ const feeds = [
   { name: "Heredis", url: "https://home.heredis.com/feed" },
   { name: "MyHeritage", url: "https://blog.myheritage.fr/feed/" },
   { name: "Fédération Française de Généalogie", url: "https://www.genefede.eu/feed" },
+  { name: "Geneafinder", url: "https://geneafinder.com/rss/rss.xml" },
   { name: "Généalogie Pratique", url: "https://www.genealogiepratique.fr/feed" },
   { name: "Généalogie Magazine", url: "https://genealogie-magazine.over-blog.com/rss" },
   { name: "Geneanet - Le Blog", url: "https://www.geneanet.org/blog/feed" },
-  { name: "Filae - Le Blog", url: "https://www.filae.com/ressources/blog/feed/" },
   { name: "Geneatech", url: "https://geneatech.fr/feed" },
   { name: "Histoire & Généalogie", url: "https://www.histoire-genealogie.com/spip.php?page=backend" },
-  { name: "La Revue Française de Généalogie", url: "https://www.rfgenealogie.com/rss.xml" },
+  { name: "La Revue Française Généalogie", url: "https://www.rfgenealogie.com/rss.xml" },
   { name: "Le Quotidien de la Généalogie", url: "https://www.quotidien-genealogie.fr/feed" },
   { name: "Portail international archivistique francophone (PIAF)", url: "https://www.piaf-archives.org/taxonomy/term/6/feed" }
 ];
@@ -44,13 +44,13 @@ const feeds = [
           description: item.contentSnippet || ""
         }))
         .filter(item => {
-  if (!item.pubDate) return false;
+          if (!item.pubDate) return false;
 
-  const date = new Date(item.pubDate);
-  if (isNaN(date)) return false;
+          const date = new Date(item.pubDate);
+          if (isNaN(date)) return false;
 
-  return date >= DATE_MIN && date <= NOW;
-});
+          return date >= DATE_MIN;
+        });
 
       allItems = allItems.concat(items);
 
