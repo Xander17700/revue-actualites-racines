@@ -9,6 +9,7 @@ const parser = new Parser({
 
 // 📅 Date minimale : 22 janvier 2025 inclus (UTC sécurisé)
 const DATE_MIN = new Date(Date.UTC(2025, 0, 22, 0, 0, 0));
+const NOW = new Date();
 
 const feeds = [
   { name: "Geneatique", url: "https://www.geneatique.com/blog/feed" },
@@ -45,13 +46,13 @@ const feeds = [
           description: item.contentSnippet || ""
         }))
         .filter(item => {
-          if (!item.pubDate) return false;
+  if (!item.pubDate) return false;
 
-          const date = new Date(item.pubDate);
-          if (isNaN(date)) return false;
+  const date = new Date(item.pubDate);
+  if (isNaN(date)) return false;
 
-          return date >= DATE_MIN;
-        });
+  return date >= DATE_MIN && date <= NOW;
+});
 
       allItems = allItems.concat(items);
 
