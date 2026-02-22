@@ -10,16 +10,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
         with:
           node-version: 20
-      - run: npm install rss-parser axios cheerio
-      - run: node generate.js
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Generate feed
+        run: node generate.js
+
       - name: Commit changes
         run: |
           git config --global user.name 'github-actions'
           git config --global user.email 'actions@github.com'
           git add feed.json
-          git commit -m "Update feed" || exit 0
+          git diff --cached --quiet || git commit -m "Update feed"
           git push
