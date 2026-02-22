@@ -1,15 +1,18 @@
 const Parser = require('rss-parser');
 const fs = require('fs');
+const axios = require('axios');
+const cheerio = require('cheerio');
 
 const parser = new Parser({
-  headers: {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
-  }
+  headers: { 'User-Agent': 'Mozilla/5.0' },
+  timeout: 15000
 });
 
-// 📅 Date minimale : 22 janvier 2025 inclus (UTC sécurisé)
+// 📅 Date minimale
 const DATE_MIN = new Date(Date.UTC(2025, 0, 22, 0, 0, 0));
+const NOW = new Date();
 
+// 🔗 Sources RSS
 const feeds = [
   { name: "Geneatique", url: "https://www.geneatique.com/blog/feed" },
   { name: "Heredis", url: "https://home.heredis.com/feed" },
@@ -34,46 +37,20 @@ const feeds = [
   { name: "Portail international archivistique francophone (PIAF)", url: "https://www.piaf-archives.org/taxonomy/term/6/feed" }
 ];
 
-(async () => {
-  let allItems = [];
 
-  for (let feed of feeds) {
-    try {
-      console.log("Lecture :", feed.url);
+  // 🔹 Fusion ancien + nouveau
+  const combined = [...existingItems, ...newItems];
 
-      const data = await parser.parseURL(feed.url);
+  // 🔹 Suppression doublons (clé = lien)
+  const unique = Array.from(
+    new Map(combined.map(item => [item.link, item])).values()
+  );
 
-      const items = data.items
-        .map(item => ({
-          title: item.title || "",
-          link: item.link || "",
-          pubDate: item.pubDate || item.isoDate || "",
-          source: feed.name,
-          description: item.contentSnippet || ""
-        }))
-        .filter(item => {
-          if (!item.pubDate) return false;
+  // 🔹 Tri du plus récent au plus ancien
+  unique.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
 
-          const date = new Date(item.pubDate);
-          if (isNaN(date)) return false;
+  fs.writeFileSync('feed.json', JSON.stringify(unique, null, 2));
 
-          return date >= DATE_MIN;
-        });
+  console.log("Total articles enregistrés :", unique.length);
 
-      allItems = allItems.concat(items);
-
-    } catch (err) {
-      console.log("Erreur :", feed.url);
-    }
-  }
-
-  // 🔽 Tri du plus récent au plus ancien
-  allItems.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
-
-  // 🔢 Limite à 80 articles
-  allItems = allItems.slice(0, 80);
-
-  fs.writeFileSync('feed.json', JSON.stringify(allItems, null, 2));
-
-  console.log("Total articles retenus :", allItems.length);
 })();
