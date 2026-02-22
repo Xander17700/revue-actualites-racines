@@ -102,10 +102,20 @@ async function main() {
 
       const items = data.items
         .map(item => {
-          const date =
-            feed.name === "Geneafinder"
-              ? item.isoDate
-              : (item.isoDate || item.pubDate);
+const date =
+  feed.name === "Geneafinder"
+    ? (() => {
+        const iso = new Date(item.isoDate);
+        const pub = new Date(item.pubDate);
+        const now = new Date();
+        const validIso = !isNaN(iso) && iso <= now ? iso : null;
+        const validPub = !isNaN(pub) && pub <= now ? pub : null;
+        if (validIso && validPub) return validIso > validPub ? item.isoDate : item.pubDate;
+        if (validIso) return item.isoDate;
+        if (validPub) return item.pubDate;
+        return null;
+      })()
+    : (item.isoDate || item.pubDate);
 
           return {
             title: cleanText(item.title),
