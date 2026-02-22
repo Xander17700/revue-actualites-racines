@@ -126,7 +126,10 @@ fetch('feed.json')
 
 function populateSources() {
   const select = document.getElementById("sourceFilter");
-  const sources = [...new Set(allData.map(item => item.source))];
+
+  // Récupération + tri alphabétique français
+  const sources = [...new Set(allData.map(item => item.source))]
+    .sort((a, b) => a.localeCompare(b, 'fr', { sensitivity: 'base' }));
 
   sources.forEach(src => {
     const option = document.createElement("option");
