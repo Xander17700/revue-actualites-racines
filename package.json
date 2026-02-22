@@ -4,7 +4,7 @@
   "description": "Agrégateur RSS Racines Partagées",
   "main": "generate.js",
   "dependencies": {
-    "rss-parser": "^3.12.0",
+    "rss-parser": "^3.13.0",
     "axios": "^1.6.0",
     "cheerio": "^1.0.0-rc.12"
   }
