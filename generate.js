@@ -99,6 +99,14 @@ async function main() {
       console.log("Lecture :", feed.url);
 
       const data = await parser.parseURL(feed.url);
+      if (feed.name === "Geneafinder") {
+  data.items.forEach(item => {
+    console.log("titre:", item.title);
+    console.log("isoDate:", item.isoDate);
+    console.log("pubDate:", item.pubDate);
+    console.log("---");
+  });
+}
 
       const items = data.items
         .map(item => {
