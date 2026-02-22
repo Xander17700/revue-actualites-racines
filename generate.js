@@ -13,6 +13,7 @@ const DATE_MIN = new Date(Date.UTC(2025, 0, 22, 0, 0, 0));
 const feeds = [
   { name: "Geneatique", url: "https://www.geneatique.com/blog/feed" },
   { name: "Heredis", url: "https://home.heredis.com/feed" },
+  { name: "Geneafinder", url: "https://geneafinder.com/rss/fr_rss.xml" },
   { name: "MyHeritage", url: "https://blog.myheritage.fr/feed/" },
   { name: "Fédération Française de Généalogie", url: "https://www.genefede.eu/feed" },
   { name: "Cercle Généalogique de Saintonge", url: "https://www.cgsaintonge.fr/feed/" },
