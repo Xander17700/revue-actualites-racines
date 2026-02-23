@@ -169,7 +169,7 @@ function render() {
     container.innerHTML += `
       <div class="card">
         <h3><a href="${item.link}" target="_blank">${item.title}</a></h3>
-        <div class="meta">${item.source} – ${new Date(item.pubDate).toLocaleDateString()}</div>
+        <div class="meta">${item.source} – Publié le ${new Date(item.pubDate).toLocaleDateString()}</div>
         <div class="desc">${item.description}</div>
       </div>
     `;
