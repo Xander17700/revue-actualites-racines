@@ -30,7 +30,7 @@ const feeds = [
   { name: "Généalogie Pratique - Tutoriels généalogiques", url: "https://www.genealogiepratique.fr/tutoriels-genealogiques-video/feed/" },
   { name: "Heredis", url: "https://home.heredis.com/feed" },
   { name: "Histoire & Généalogie", url: "https://www.histoire-genealogie.com/spip.php?page=backend" },
-  { name: "La Revue Française Généalogie", url: "https://www.rfgenealogie.com/rss.xml" },
+  { name: "La Revue Française de Généalogie", url: "https://www.rfgenealogie.com/rss.xml" },
   { name: "Le Quotidien de la Généalogie", url: "https://www.quotidien-genealogie.fr/feed" },
   { name: "MyHeritage", url: "https://blog.myheritage.fr/feed/" },
   { name: "Portail international archivistique francophone (PIAF)", url: "https://www.piaf-archives.org/taxonomy/term/6/feed" },
