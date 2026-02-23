@@ -15,7 +15,7 @@ const NOW = new Date();
 const feeds = [
   { name: "Cercle Généalogique de Saintonge", url: "https://www.cgsaintonge.fr/feed/" },
   { name: "Fédération Française de Généalogie", url: "https://www.genefede.eu/feed" },
-  { name: "Geneanet - Le Blog", url: "https://www.geneanet.org/blog/feed" },
+  { name: "Geneanet", url: "https://www.geneanet.org/blog/feed" },
   { name: "Geneatech", url: "https://geneatech.fr/feed" },
   { name: "Geneatique", url: "https://www.geneatique.com/blog/feed" },
   { name: "Geneafinder", url: "https://geneafinder.com/rss/rss.xml" },
