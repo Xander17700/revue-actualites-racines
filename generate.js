@@ -18,7 +18,7 @@ const feeds = [
   { name: "Geneanet - Le Blog", url: "https://www.geneanet.org/blog/feed" },
   { name: "Geneatech", url: "https://geneatech.fr/feed" },
   { name: "Geneatique", url: "https://www.geneatique.com/blog/feed" },
-  { name: "Geneafinder", url: "https://geneafinder.com/rss/fr_rss.xml" },
+  { name: "Geneafinder", url: "https://geneafinder.com/rss/rss.xml" },
   { name: "Généa79 – Cercle généalogique des Deux-Sèvres", url: "https://genea79.wordpress.com/feed/" },
   { name: "Généalogie Magazine", url: "https://genealogie-magazine.over-blog.com/rss" },
   { name: "Généalogie Pratique - Actualité généalogique", url: "https://www.genealogiepratique.fr/actualite-genealogique/feed/" },
