@@ -13,14 +13,12 @@ const DATE_MIN = new Date(Date.UTC(2025, 0, 22, 0, 0, 0));
 const NOW = new Date();
 
 const feeds = [
-  { name: "Cercle Généalogique de Saintonge", url: "https://www.cgsaintonge.fr/feed/" },
   { name: "Fédération Française de Généalogie", url: "https://www.genefede.eu/feed" },
   { name: "Filae", url: "https://rss.app/feeds/J87qTR1QbbM24mYH.xml" },
   { name: "Geneanet", url: "https://www.geneanet.org/blog/feed" },
   { name: "Geneatech", url: "https://geneatech.fr/feed" },
   { name: "Geneatique", url: "https://www.geneatique.com/blog/feed" },
   { name: "Geneafinder", url: "https://rss.app/feeds/NIRZiy4ixhVAwXii.xml" },
-  { name: "Généa79 – Cercle généalogique des Deux-Sèvres", url: "https://genea79.wordpress.com/feed/" },
   { name: "Généalogie Magazine", url: "https://genealogie-magazine.over-blog.com/rss" },
   { name: "Généalogie Pratique - Actualité généalogique", url: "https://www.genealogiepratique.fr/actualite-genealogique/feed/" },
   { name: "Généalogie Pratique - Archives & ressources", url: "https://www.genealogiepratique.fr/archives-ressources/feed/" },
