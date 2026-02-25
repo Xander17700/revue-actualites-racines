@@ -14,7 +14,7 @@ const NOW = new Date();
 const feeds = [
   { name: "Fédération Française de Généalogie", url: "https://www.genefede.eu/feed" },
   { name: "Filae (RSS via rss.app)", url: "https://rss.app/feeds/J87qTR1QbbM24mYH.xml" },
-  { name: "Geneanet", url: "https://www.geneanet.org/blog/feed" },
+  { name: "Geneanet", url: "https://rss.app/feeds/YL9FURTjiMYoJjDI.xml" },
   { name: "Geneatech", url: "https://geneatech.fr/feed" },
   { name: "Geneatique", url: "https://www.geneatique.com/blog/feed" },
   { name: "Geneafinder", url: "https://rss.app/feeds/NIRZiy4ixhVAwXii.xml" },
