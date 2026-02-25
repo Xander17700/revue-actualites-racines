@@ -8,7 +8,6 @@ const parser = new Parser({
   timeout: 15000
 });
 
-// Articles depuis le 22 janvier 2025
 const DATE_MIN = new Date(Date.UTC(2025, 0, 22, 0, 0, 0));
 const NOW = new Date();
 
@@ -41,26 +40,23 @@ function cleanText(text) {
 function isValidDate(dateStr) {
   if (!dateStr) return false;
   const date = new Date(dateStr);
-  if (isNaN(date)) return false;
-  return date >= DATE_MIN && date <= NOW;
+  return !isNaN(date) && date >= DATE_MIN && date <= NOW;
 }
 
-// Scraping Filae (site sans RSS officiel fiable)
+// Scraping Filae
 async function scrapeFilae() {
   try {
-    const response = await axios.get(
-      "https://www.filae.com/ressources/blog/",
-      { headers: { 'User-Agent': 'Mozilla/5.0' }, timeout: 15000 }
-    );
+    const response = await axios.get("https://www.filae.com/ressources/blog/", {
+      headers: { 'User-Agent': 'Mozilla/5.0' },
+      timeout: 15000
+    });
 
     const $ = cheerio.load(response.data);
     const items = [];
-
     $("article").each((i, el) => {
       const title = cleanText($(el).find("h2 a").text());
       const link = $(el).find("h2 a").attr("href");
       const dateText = $(el).find("time").attr("datetime");
-
       if (title && link && isValidDate(dateText)) {
         items.push({
           title,
@@ -75,88 +71,79 @@ async function scrapeFilae() {
     console.log("Filae récupéré :", items.length);
     return items;
 
-  } catch (err) {
-    console.log("Erreur scraping Filae :", err.message);
+  } catch {
     return [];
   }
 }
 
-async function fetchFeed(feed) {
-  try {
-    console.log("Lecture :", feed.url);
+// Fonction fetch RSS avec retry automatique
+async function fetchFeedWithRetry(feed, retries = 2) {
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const data = await Promise.race([
+        parser.parseURL(feed.url),
+        new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 15000))
+      ]);
 
-    const data = await Promise.race([
-      parser.parseURL(feed.url),
-      new Promise((_, reject) =>
-        setTimeout(() => reject(new Error("Timeout")), 20000)
-      )
-    ]);
+      const items = (data.items || []).map(item => {
+        let rawDate = item.isoDate || item.pubDate;
+        let parsedDate = new Date(rawDate);
+        if (feed.name === "Geneafinder") {
+          if (!rawDate || isNaN(parsedDate)) parsedDate = new Date();
+          if (parsedDate > NOW) parsedDate = NOW;
+        }
+        return {
+          title: cleanText(item.title),
+          link: item.link || "",
+          pubDate: parsedDate.toISOString(),
+          source: feed.name,
+          description: cleanText(item.contentSnippet)
+        };
+      }).filter(item => item.link && item.title && isValidDate(item.pubDate));
 
-    return data.items.map(item => {
-      let rawDate = item.isoDate || item.pubDate;
-      let parsedDate = new Date(rawDate);
+      console.log(`${feed.name} récupéré (${items.length} articles)`);
+      return items;
 
-      if (feed.name === "Geneafinder") {
-        if (!rawDate || isNaN(parsedDate)) parsedDate = new Date();
-        if (parsedDate > NOW) parsedDate = NOW;
+    } catch (err) {
+      const status = err.response?.status;
+      if (["403", "404"].includes(status)) break; // ne pas réessayer pour ces codes
+      if (attempt < retries) {
+        console.log(`Retry ${attempt + 1} pour ${feed.name}...`);
+        await new Promise(res => setTimeout(res, 1000)); // attente 1s avant retry
+      } else {
+        console.log(`Échec définitif de ${feed.name}:`, err.message);
+        return [];
       }
-
-      return {
-        title: cleanText(item.title),
-        link: item.link || "",
-        pubDate: parsedDate.toISOString(),
-        source: feed.name,
-        description: cleanText(item.contentSnippet)
-      };
-    }).filter(item =>
-      item.link &&
-      item.title &&
-      isValidDate(item.pubDate)
-    );
-
-  } catch (err) {
-    console.log("Erreur :", feed.url, err.message);
-    return [];
+    }
   }
+  return [];
 }
 
 async function main() {
-
   let existingItems = [];
-
   if (fs.existsSync('feed.json')) {
-    try {
-      existingItems = JSON.parse(fs.readFileSync('feed.json'));
-    } catch {
-      existingItems = [];
-    }
+    try { existingItems = JSON.parse(fs.readFileSync('feed.json')); } 
+    catch { existingItems = []; }
   }
 
-  // 🔥 Chargement parallèle des flux
-  const feedResults = await Promise.all(feeds.map(fetchFeed));
+  const allPromises = feeds.map(feed => fetchFeedWithRetry(feed)).concat([scrapeFilae()]);
+  const results = await Promise.allSettled(allPromises);
 
-  let newItems = feedResults.flat();
+  let newItems = [];
+  results.forEach(res => {
+    if (res.status === 'fulfilled') newItems.push(...res.value);
+  });
 
-  // Scraping Filae
-  const filaeItems = await scrapeFilae();
-  newItems = newItems.concat(filaeItems);
-
-  // Déduplication intelligente
+  // Déduplication
   const existingLinks = new Set(existingItems.map(i => i.link));
   const trulyNew = newItems.filter(i => !existingLinks.has(i.link));
-
   const combined = [...existingItems, ...trulyNew];
 
-  // Déduplication finale sécurité
-  const unique = Array.from(
-    new Map(combined.map(item => [item.link, item])).values()
-  );
+  const unique = Array.from(new Map(combined.map(i => [i.link, i])).values());
 
-  // Tri décroissant
   unique.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
 
   fs.writeFileSync('feed.json', JSON.stringify(unique, null, 2));
-
   console.log("Total articles enregistrés :", unique.length);
 }
 
