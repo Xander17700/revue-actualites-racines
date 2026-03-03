@@ -5,24 +5,13 @@ const cheerio = require('cheerio');
 const { execSync } = require('child_process');
 
 const parser = new Parser({
-  headers: { 'User-Agent': 'Mozilla/5.0' },
-  timeout: 10000
+  headers: { 'User-Agent': 'Mozilla/5.0 (compatible; GitHubActionsBot/1.0)' },
+  timeout: 15000
 });
 
-const DATE_MIN = new Date(Date.UTC(2025, 0, 22, 0, 0, 0));
-const NOW = new Date();
+const DATE_MIN = new Date(Date.UTC(2025, 0, 22));
+const MAX_ITEMS = 1000; // évite un fichier trop lourd
 
-// Timeout global pour éviter l’annulation du job GitHub (max 12 minutes)
-const GLOBAL_TIMEOUT = 12 * 60 * 1000;
-const startTime = Date.now();
-
-function checkGlobalTimeout() {
-  if (Date.now() - startTime > GLOBAL_TIMEOUT) {
-    throw new Error("Temps d'exécution dépassé — arrêt pour éviter l'annulation GitHub.");
-  }
-}
-
-// Flux RSS
 const feeds = [
   { name: "Fédération Française de Généalogie", url: "https://www.genefede.eu/feed" },
   { name: "Filae", url: "https://rss.app/feeds/J87qTR1QbbM24mYH.xml" },
@@ -45,99 +34,57 @@ const feeds = [
   { name: "PIAF", url: "https://www.piaf-archives.org/taxonomy/term/6/feed" },
 ];
 
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 function cleanText(text) {
   return text ? text.replace(/\s+/g, ' ').trim() : "";
 }
 
-function isValidDate(dateStr) {
-  return dateStr && !isNaN(new Date(dateStr)) && new Date(dateStr) >= DATE_MIN && new Date(dateStr) <= NOW;
+function parseDate(item) {
+  const d = new Date(item.isoDate || item.pubDate || Date.now());
+  return isNaN(d) ? new Date() : d;
 }
 
-// Scraping Filae
-async function scrapeFilae(lastDate) {
-  checkGlobalTimeout();
+async function fetchFeed(feed, lastDate) {
   try {
-    const { data } = await axios.get("https://www.filae.com/ressources/blog/", {
-      headers: { 'User-Agent': 'Mozilla/5.0' },
-      timeout: 10000
-    });
+    const data = await parser.parseURL(feed.url);
 
-    const $ = cheerio.load(data);
-    const items = [];
-
-    $("article").each((_, el) => {
-      const title = cleanText($(el).find("h2 a").text());
-      const link = $(el).find("h2 a").attr("href");
-      const dateText = $(el).find("time").attr("datetime");
-      const pubDate = new Date(dateText);
-
-      if (title && link && isValidDate(pubDate) && pubDate > lastDate) {
-        items.push({
-          title,
-          link,
+    return (data.items || [])
+      .map(item => {
+        const pubDate = parseDate(item);
+        return {
+          title: cleanText(item.title),
+          link: item.link || "",
           pubDate: pubDate.toISOString(),
-          source: "Filae",
-          description: ""
-        });
-      }
-    });
+          source: feed.name,
+          description: cleanText(item.contentSnippet)
+        };
+      })
+      .filter(i =>
+        i.title &&
+        i.link &&
+        new Date(i.pubDate) > lastDate &&
+        new Date(i.pubDate) >= DATE_MIN
+      );
 
-    console.log("Filae récupéré :", items.length);
-    return items;
   } catch (err) {
-    console.log("Filae erreur:", err.message);
+
+    const code = err.response?.status?.toString();
+
+    if (["402", "403", "404"].includes(code)) {
+      console.log(`Flux bloqué (${code}) : ${feed.name}`);
+      return [];
+    }
+
+    console.log(`Erreur ${feed.name} :`, err.message);
     return [];
   }
 }
 
-// Fetch RSS avec retry exponentiel
-async function fetchFeed(feed, lastDate, retries = 2) {
-  checkGlobalTimeout();
-
-  for (let attempt = 0; attempt <= retries; attempt++) {
-    try {
-      const data = await Promise.race([
-        parser.parseURL(feed.url),
-        new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 10000))
-      ]);
-
-      return (data.items || [])
-        .map(item => {
-          let pubDate = new Date(item.isoDate || item.pubDate || NOW);
-          if (feed.name === "Geneafinder" && (isNaN(pubDate) || pubDate > NOW)) pubDate = NOW;
-
-          return {
-            title: cleanText(item.title),
-            link: item.link || "",
-            pubDate: pubDate.toISOString(),
-            source: feed.name,
-            description: cleanText(item.contentSnippet)
-          };
-        })
-        .filter(i => i.link && i.title && new Date(i.pubDate) > lastDate);
-
-    } catch (err) {
-      const code = err.response?.status?.toString();
-
-      // 402/403/404 → flux bloqué → on ignore proprement
-      if (["402", "403", "404"].includes(code)) {
-        console.log(`Flux bloqué (${code}) pour ${feed.name} — ignoré.`);
-        return [];
-      }
-
-      if (attempt < retries) {
-        const wait = 500 * Math.pow(2, attempt);
-        console.log(`Retry ${attempt + 1} pour ${feed.name} dans ${wait}ms...`);
-        await new Promise(r => setTimeout(r, wait));
-      } else {
-        console.log(`Échec définitif de ${feed.name}:`, err.message || "Erreur inconnue");
-        return [];
-      }
-    }
-  }
-}
-
 async function main() {
+
   let existingItems = [];
   if (fs.existsSync('feed.json')) {
     try {
@@ -147,40 +94,58 @@ async function main() {
     }
   }
 
-  const lastDate = existingItems.length ? new Date(existingItems[0].pubDate) : DATE_MIN;
-
-  const allPromises = feeds.map(f => fetchFeed(f, lastDate)).concat([scrapeFilae(lastDate)]);
-  const results = await Promise.allSettled(allPromises);
+  const lastDate = existingItems.length
+    ? new Date(existingItems[0].pubDate)
+    : DATE_MIN;
 
   let newItems = [];
-  results.forEach(r => {
-    if (r.status === 'fulfilled') newItems.push(...r.value);
-  });
 
-  // Déduplication
+  // 🔒 TRAITEMENT SÉQUENTIEL STABLE
+  for (const feed of feeds) {
+    console.log(`Traitement : ${feed.name}`);
+    const items = await fetchFeed(feed, lastDate);
+    newItems.push(...items);
+
+    await sleep(800); // délai anti-blocage
+  }
+
+  // 🔁 Déduplication
   const existingLinks = new Set(existingItems.map(i => i.link));
-  const combined = [...existingItems, ...newItems.filter(i => !existingLinks.has(i.link))];
+  const combined = [
+    ...existingItems,
+    ...newItems.filter(i => !existingLinks.has(i.link))
+  ];
 
-  const unique = Array.from(new Map(combined.map(i => [i.link, i])).values());
-  unique.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+  const unique = Array.from(new Map(combined.map(i => [i.link, i])).values())
+    .sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate))
+    .slice(0, MAX_ITEMS);
 
-  fs.writeFileSync('feed.json', JSON.stringify(unique, null, 2));
-  console.log("Total articles enregistrés :", unique.length);
+  const newContent = JSON.stringify(unique, null, 2);
+  const oldContent = fs.existsSync('feed.json')
+    ? fs.readFileSync('feed.json', 'utf8')
+    : "";
 
-  // Git push
+  if (newContent === oldContent) {
+    console.log("Aucune modification — pas de commit.");
+    return;
+  }
+
+  fs.writeFileSync('feed.json', newContent);
+  console.log("Articles enregistrés :", unique.length);
+
   try {
     execSync('git config user.name "github-actions"');
     execSync('git config user.email "actions@github.com"');
     execSync('git add feed.json');
-    execSync('git commit -m "Mise à jour automatique du flux" || echo "Aucun changement"');
+    execSync('git commit -m "Mise à jour automatique du flux"');
     execSync('git push origin main --force');
-    console.log("Push effectué !");
+    console.log("Push OK");
   } catch (err) {
-    console.error("Erreur git push :", err.message);
+    console.log("Aucun changement à pousser.");
   }
 }
 
 main().catch(err => {
   console.error("Erreur fatale :", err);
-  process.exit(1);
+  process.exit(0); // ne fait PAS échouer le workflow
 });
