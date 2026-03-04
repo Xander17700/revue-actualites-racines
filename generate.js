@@ -14,7 +14,7 @@ const MAX_ITEMS = 1000; // évite un fichier trop lourd
 
 const feeds = [
   { name: "Fédération Française de Généalogie", url: "https://www.genefede.eu/feed" },
-  { name: "Geneanet", url: "https://www.geneanet.org/blog" },
+  { name: "Geneanet", url: "https://www.geneanet.org/blog/feed?lang=fr&page=1" },
   { name: "GeneaFinder", url: "https://geneafinder.com/rss/fr_rss.xml" },
   { name: "Geneatech", url: "https://geneatech.fr/feed" },
   { name: "Geneatique", url: "https://www.geneatique.com/blog/feed" },
